@@ -1,6 +1,6 @@
 // hide on phones
 if (/Android|webOS|iPhone|iPad|iPod|pocket|psp|kindle|avantgo|blazer|midori|Tablet|Palm|maemo|plucker|phone|BlackBerry|symbian|IEMobile|mobile|ZuneWP7|Windows Phone|Opera Mini/i.test(navigator.userAgent)) {
-    document.getElementById('mybox').style.display = 'none';
+    document.getElementById('SlideIntro').style.display = 'none';
 };
 
 $(document).ready(function() {
@@ -8,7 +8,8 @@ $(document).ready(function() {
     mainTrack = document.getElementById('heylove');
 
     // add event listeners
-    $('#start').on('click', startAutoplay);
+    $('#start').on('click', playAndStart);
+    $('#heylove').on('play', startAutoplay).on('pause', stopAutoplay);
     $(window).on('scroll resize', checkScroll);
 });
 
@@ -19,8 +20,25 @@ var lastMarker = 0;
 var time = 0;
 var trackListener, mainTrack;
 
-function startAutoplay() {
+function stopAutoplay() {
+    mainTrack.pause();
+    mainTrack.currentTime = 0;
+    time = 0;
+    lastMarker = 0;
+    scrollToSlide('Intro');
+}
+
+function playAndStart() {
     mainTrack.play();
+    startAutoplay();
+}
+
+function startAutoplay() {
+    console.log('got here');
+
+    scrollToSlide(0);
+
+    clearInterval(trackListener);
 
     trackListener = setInterval(function() {
         time += 0.1;
@@ -32,19 +50,16 @@ function startAutoplay() {
         });
 
         // reset at the end
-        if (time > 244) {
+        if (time > 246) {
             currentMarker = 0;
             time = 0;
         }
 
-        //console.log('you are currently at position ' + currentMarker);
+        console.log('you are currently at position ' + currentMarker);
         if (currentMarker !== lastMarker) {
             lastMarker = currentMarker;
             if (!currentlyAutoScrolling) {
-                //console.log('scroll to slide');
                 scrollToSlide(currentMarker);
-            } else {
-                //console.log('do not scroll because already scrolling');
             }
         }
     }, 100);
@@ -55,12 +70,12 @@ var currentlyAutoScrolling = false;
 function scrollToSlide(n) {
     //console.log('scrolling to ' + n);
     currentlyAutoScrolling = true;
-    $("body, html").animate({ 
+    $("body, html").stop().animate({ 
       scrollTop: $('#Slide' + n).offset().top 
     }, 600, function() {
         setTimeout(function() {    
             currentlyAutoScrolling = false;
-        },400);
+        }, 200);
     });
 }
 
