@@ -30,25 +30,36 @@ function startAutoplay() {
                 currentMarker = i;
             }
         });
-        console.log('you are currently at position ' + currentMarker);
+
+        // reset at the end
+        if (time > 244) {
+            currentMarker = 0;
+            time = 0;
+        }
+
+        //console.log('you are currently at position ' + currentMarker);
         if (currentMarker !== lastMarker) {
             lastMarker = currentMarker;
-            scrollToSlide(currentMarker);
+            if (!currentlyAutoScrolling) {
+                //console.log('scroll to slide');
+                scrollToSlide(currentMarker);
+            } else {
+                //console.log('do not scroll because already scrolling');
+            }
         }
     }, 100);
 }
 
-var currentlyScrolling = false;
+var currentlyAutoScrolling = false;
 
 function scrollToSlide(n) {
-    console.log('scrolling to ' + n);
-    currentlyScrolling = true;
+    //console.log('scrolling to ' + n);
+    currentlyAutoScrolling = true;
     $("body, html").animate({ 
       scrollTop: $('#Slide' + n).offset().top 
-    }, 600, function() { // complete
-        
+    }, 600, function() {
         setTimeout(function() {    
-            currentlyScrolling = false;
+            currentlyAutoScrolling = false;
         },400);
     });
 }
@@ -58,17 +69,18 @@ function seekAudio(i) {
     time = audioChanges[i];
 
     // seek if not auto scrolling
-    if (!currentlyScrolling) {
-        console.log('did set audio currentTime', time);
+    if (!currentlyAutoScrolling) {
+        //console.log('did set audio currentTime', time);
         mainTrack.currentTime = audioChanges[i];
     } else {
-        console.log('did not set audio because currently auto scrolling');
+        //console.log('did not set audio because currently auto scrolling');
     }
 }
 
-
 // Video Scroll 
 var videos = document.getElementsByTagName("video");
+var lastScrollTop = window.pageYOffset;
+var isScrollingUp = false;
 
 function checkScroll() {
     for (var i = 0; i < videos.length; i++) {
@@ -83,6 +95,9 @@ function checkScroll() {
         var windowBottom = scrollTop + windowHeight;
 
         var isVisible = windowBottom >= top && bottom >= scrollTop;
+        isScrollingUp = lastScrollTop > scrollTop;
+
+        lastScrollTop = scrollTop;
 
         // play or pause video
         if (isVisible && video.paused) {
@@ -95,3 +110,4 @@ function checkScroll() {
         }
     }
 }
+
